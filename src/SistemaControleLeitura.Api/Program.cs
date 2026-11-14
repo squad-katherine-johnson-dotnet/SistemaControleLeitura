@@ -1,3 +1,7 @@
+using Microsoft.EntityFrameworkCore;
+using SistemaControleLeitura.Api.Data;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +9,11 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
+
+var connectionString = builder.Configuration.GetConnectionString("LeituraDb")
+    ?? throw new InvalidOperationException("A connection string 'LeituraDb' não foi encontrada.");
+
+builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 
 var app = builder.Build();
 
