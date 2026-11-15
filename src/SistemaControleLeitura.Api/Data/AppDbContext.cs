@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Livro> Livros { get; set;} = null!;
     public DbSet<Leitura> Leituras { get; set;} = null!;
     public DbSet<MetaAnual> MetasAnuais { get; set;} = null!;
+    public DbSet<MetaAnual> ItemEstante { get; set;} = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -58,6 +59,15 @@ public class AppDbContext : DbContext
         .HasOne<Usuario>()
         .WithMany()
         .HasForeignKey(meta => meta.UsuarioId);
+
+        // um livro so pode teer um item correspondente na estante
+        // livro id guarda o id do libro
+
+        modelBuilder.Entity<ItemEstante>()
+        .HasOne<Livro>()
+        .WithOne()
+        .HasForeignKey<ItemEstante>(item => item.LivroId)
+        .OnDelete(DeleteBehavior.Restrict);
 
     
 
