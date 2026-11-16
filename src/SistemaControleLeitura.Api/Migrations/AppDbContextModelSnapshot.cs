@@ -114,7 +114,7 @@ namespace SistemaControleLeitura.Api.Migrations
                     b.HasIndex("UsuarioId", "Ano")
                         .IsUnique();
 
-                    b.ToTable("MetaAnual");
+                    b.ToTable("MetasAnuais");
                 });
 
             modelBuilder.Entity("SistemaControleLeitura.Api.Entities.Usuario", b =>

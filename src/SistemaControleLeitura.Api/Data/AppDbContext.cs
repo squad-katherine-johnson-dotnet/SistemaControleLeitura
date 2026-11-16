@@ -14,7 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Livro> Livros { get; set;} = null!;
     public DbSet<Leitura> Leituras { get; set;} = null!;
     public DbSet<MetaAnual> MetasAnuais { get; set;} = null!;
-    public DbSet<MetaAnual> ItemEstante { get; set;} = null!;
+    public DbSet<ItemEstante> ItemEstante { get; set;} = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
