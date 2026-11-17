@@ -1,12 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\SistemaControleLeitura.Domain\SistemaControleLeitura.Domain.csproj" />
+    <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="11.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="DTOs\" />
-    <Folder Include="Services\" />
+    <ProjectReference Include="..\SistemaControleLeitura.Domain\SistemaControleLeitura.Domain.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
