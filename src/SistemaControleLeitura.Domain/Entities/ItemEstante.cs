@@ -1,4 +1,4 @@
-namespace SistemaControleLeitura.Api.Entities;
+namespace SistemaControleLeitura.Domain.Entities;
 
 public class ItemEstante
 {

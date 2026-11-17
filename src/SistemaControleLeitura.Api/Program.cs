@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SistemaControleLeitura.Api.Data;
+using SistemaControleLeitura.Infrastructure.Data;
 
 
 var builder = WebApplication.CreateBuilder(args);

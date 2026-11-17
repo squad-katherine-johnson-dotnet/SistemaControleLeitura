@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using SistemaControleLeitura.Api.Entities;
-namespace SistemaControleLeitura.Api.Data;
+using SistemaControleLeitura.Domain.Entities;
+namespace SistemaControleLeitura.Infrastructure.Data;
 
 public class AppDbContext : DbContext
 {
