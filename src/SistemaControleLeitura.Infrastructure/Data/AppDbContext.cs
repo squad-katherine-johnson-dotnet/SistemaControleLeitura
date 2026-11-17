@@ -14,7 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<Livro> Livros { get; set;} = null!;
     public DbSet<Leitura> Leituras { get; set;} = null!;
     public DbSet<MetaAnual> MetasAnuais { get; set;} = null!;
-    public DbSet<ItemEstante> ItemEstante { get; set;} = null!;
+    public DbSet<ItemEstante> ItensEstante { get; set;} = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -39,14 +39,17 @@ public class AppDbContext : DbContext
         // LivroId identifica o livro relacionado
         // restrict impede excluir um livro que tenha ciclos registrados
 
-        modelBuilder.Entity<Leitura>()
-        .HasOne<Livro>()
-        .WithMany()
-        .HasForeignKey(leitura =>leitura.LivroId)
-        .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Leitura>(e =>
+        {
+            e.Property(l => l.Status).HasConversion<string>();   // grava "Lido" no banco, não 2
+            e.HasOne<ItemEstante>()
+            .WithMany()
+            .HasForeignKey(l => l.ItemEstanteId)
+            .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // Nao deixa uma usuaria com duas metas para o mesmo ano
-    
+
         modelBuilder.Entity<MetaAnual>()
         .HasIndex(meta => new { meta.UsuarioId, meta.Ano }) 
         .IsUnique();
