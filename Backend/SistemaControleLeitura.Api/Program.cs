@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using SistemaControleLeitura.Application.Interfaces;
+using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Infrastructure.Data;
+using SistemaControleLeitura.Infrastructure.Repositories;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,6 +18,8 @@ var connectionString = builder.Configuration.GetConnectionString("LeituraDb")
     ?? throw new InvalidOperationException("A connection string 'LeituraDb' não foi encontrada.");
 
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
+builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 var app = builder.Build();
 

@@ -22,9 +22,13 @@ public class AppDbContext : DbContext
 
         // Não permite que o email se repita
 
-        modelBuilder.Entity<Usuario>()
-        .HasIndex(usuario => usuario.Email)
-        .IsUnique();
+        modelBuilder.Entity<Usuario>(entity => {
+            entity.HasKey(p => p.IdUsuario);
+            entity.Property(p => p.Nome).IsRequired().HasMaxLength(120);
+            entity.Property(p => p.Email).IsRequired().HasMaxLength(254);
+            entity.Property(p => p.SenhaHash).IsRequired().HasMaxLength(256);
+            entity.HasIndex(p => p.Email).IsUnique();
+        });
 
         // Cada livro pertence a uma usuaria
         // UsuarioId guarda o ID da dona do livro

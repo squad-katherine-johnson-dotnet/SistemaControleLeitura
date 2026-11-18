@@ -1,7 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\SistemaControleLeitura.Application\SistemaControleLeitura.Application.csproj" />
     <ProjectReference Include="..\SistemaControleLeitura.Domain\SistemaControleLeitura.Domain.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
   </ItemGroup>
 
   <PropertyGroup>
