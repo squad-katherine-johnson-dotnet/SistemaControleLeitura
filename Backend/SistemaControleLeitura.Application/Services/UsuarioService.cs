@@ -16,7 +16,7 @@ namespace SistemaControleLeitura.Application.Services {
 
         public async Task<UsuarioRespostaDto> CadastrarUsuarioAsync(UsuarioCadastroDto usuarioDto) {
 
-            var email = usuarioDto.Email.Trim().ToUpperInvariant();
+            var email = usuarioDto.Email.Trim().ToLowerInvariant();
 
             if (await _usuarioRepository.ExisteEmailAsync(email))
                 throw new ArgumentException("E-mail já cadastrado.");
@@ -48,6 +48,11 @@ namespace SistemaControleLeitura.Application.Services {
         public async Task<Usuario?> ObterUsuarioPorIdAsync(int idUsuario) {
 
             return await _usuarioRepository.ObterUsuarioPorIdAsync(idUsuario);
+        }
+
+        public async Task<IEnumerable<Usuario>> ObterUsuariosAsync() {
+
+            return await _usuarioRepository.ObterUsuariosAsync();
         }
     }
 }

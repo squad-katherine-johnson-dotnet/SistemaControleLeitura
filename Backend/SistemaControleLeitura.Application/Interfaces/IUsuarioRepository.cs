@@ -10,5 +10,7 @@ namespace SistemaControleLeitura.Application.Interfaces {
         Task<Usuario?> ObterUsuarioPorEmailAsync(string email, CancellationToken cancellationToken = default);
 
         Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default);
+
+        Task<IEnumerable<Usuario>> ObterUsuariosAsync(CancellationToken cancellationToken = default);
     }
 }

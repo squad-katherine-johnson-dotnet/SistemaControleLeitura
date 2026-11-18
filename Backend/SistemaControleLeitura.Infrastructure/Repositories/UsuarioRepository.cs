@@ -35,5 +35,10 @@ namespace SistemaControleLeitura.Infrastructure.Repositories {
 
             return await _context.Usuarios.AnyAsync(usuario => usuario.Email == emailFormatado, cancellationToken);
         }
+
+        public async Task<IEnumerable<Usuario>> ObterUsuariosAsync(CancellationToken cancellationToken = default) {
+
+            return await _context.Usuarios.AsNoTracking().ToListAsync(cancellationToken);
+        }
     }
 }

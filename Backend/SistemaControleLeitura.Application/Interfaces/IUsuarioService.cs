@@ -9,5 +9,8 @@ namespace SistemaControleLeitura.Application.Interfaces {
         Task<Usuario?> ObterUsuarioPorIdAsync(int idUsuario);
 
         Task<Usuario?> ObterUsuarioPorEmailAsync(string email);
+
+        Task<IEnumerable<Usuario>> ObterUsuariosAsync();
+
     }
 }
