@@ -24,14 +24,14 @@ namespace SistemaControleLeitura.Infrastructure.Repositories {
 
         public async Task<Usuario?> ObterUsuarioPorEmailAsync(string email, CancellationToken cancellationToken = default) {
 
-            var emailFormatado = email.Trim().ToUpperInvariant();
+            var emailFormatado = email.Trim().ToLowerInvariant();
 
             return await _context.Usuarios.FirstOrDefaultAsync(usuario => usuario.Email == emailFormatado, cancellationToken);
         }
 
         public async Task<bool> ExisteEmailAsync(string email, CancellationToken cancellationToken = default) {
 
-            var emailFormatado = email.Trim().ToUpperInvariant();
+            var emailFormatado = email.Trim().ToLowerInvariant();
 
             return await _context.Usuarios.AnyAsync(usuario => usuario.Email == emailFormatado, cancellationToken);
         }
