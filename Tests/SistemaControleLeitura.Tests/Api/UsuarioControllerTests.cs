@@ -4,7 +4,6 @@ using Moq;
 using SistemaControleLeitura.Api.Controllers;
 using SistemaControleLeitura.Application.DTOs;
 using SistemaControleLeitura.Application.Interfaces;
-using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Domain.Entities;
 
 namespace SistemaControleLeitura.Tests.Api {
