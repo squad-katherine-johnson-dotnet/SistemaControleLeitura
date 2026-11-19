@@ -19,7 +19,7 @@ namespace SistemaControleLeitura.Application.Services {
             var email = usuarioDto.Email.Trim().ToLowerInvariant();
 
             if (await _usuarioRepository.ExisteEmailAsync(email))
-                throw new ArgumentException("E-mail já cadastrado.");
+                throw new ArgumentException("Email já cadastrado.");
 
             var senhaHash = _passwordHasher.HashPassword(null!, usuarioDto.Senha);
 
