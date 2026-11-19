@@ -94,5 +94,24 @@ namespace SistemaControleLeitura.Tests.Application
             await Assert.ThrowsAsync<ArgumentException>(() =>
                 service.DefinirMetaAnualAsync(1, 2026, dto));
         }
+
+        [Theory]
+        [InlineData(1999)]
+        [InlineData(2101)]
+        public async Task DefinirMetaAnualAsync_QuandoAnoInvalido_DeveLancarArgumentException(int anoInvalido)
+        {
+            // Arrange
+            var (context, connection) = CriarContextoSqliteEmMemoria();
+            using var _ = connection;
+            using var __ = context;
+
+            var repository = new MetaAnualRepository(context);
+            var service = new MetaAnualService(repository);
+            var dto = new DefinirMetaAnualDto { QuantidadeMeta = 12 };
+
+            // Act & Assert
+            await Assert.ThrowsAsync<ArgumentException>(() =>
+                service.DefinirMetaAnualAsync(1, anoInvalido, dto));
+        }
     }
 }
