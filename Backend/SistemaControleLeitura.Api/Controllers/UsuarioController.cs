@@ -44,7 +44,7 @@ namespace SistemaControleLeitura.Api.Controllers {
                     Mensagem = ex.Message
                 };
 
-                if (ex.Message == "E-mail já cadastrado.")
+                if (ex.Message == "Email já cadastrado.")
                     return Conflict(resposta);
 
                 return BadRequest(resposta);

@@ -16,6 +16,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\..\Backend\SistemaControleLeitura.Api\SistemaControleLeitura.Api.csproj" />
 		<ProjectReference Include="..\..\Backend\SistemaControleLeitura.Domain\SistemaControleLeitura.Domain.csproj" />
 		<ProjectReference Include="..\..\Backend\SistemaControleLeitura.Application\SistemaControleLeitura.Application.csproj" />
 		<ProjectReference Include="..\..\Backend\SistemaControleLeitura.Infrastructure\SistemaControleLeitura.Infrastructure.csproj" />
