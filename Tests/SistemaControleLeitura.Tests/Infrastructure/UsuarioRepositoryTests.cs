@@ -5,7 +5,7 @@ using SistemaControleLeitura.Infrastructure.Data;
 using SistemaControleLeitura.Infrastructure.Repositories;
 
 namespace SistemaControleLeitura.Tests.Infrastructure {
-    public class UsuarioRepositoryTests {
+    public class UsuarioRepositoryTests : IDisposable {
 
         private readonly SqliteConnection _connection;
         private readonly AppDbContext _context;

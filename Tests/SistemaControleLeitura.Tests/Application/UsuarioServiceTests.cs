@@ -140,7 +140,7 @@ namespace SistemaControleLeitura.Tests.Application {
                 "hashSenhaAntiga"
                 );
 
-            var idUsuario = usuario.IdUsuario;
+            var idUsuario = 1;
 
             _repositoryMock.Setup(r => r.ObterUsuarioPorIdAsync(idUsuario))
                 .ReturnsAsync(usuario);
