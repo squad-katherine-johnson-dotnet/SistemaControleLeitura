@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaControleLeitura.Application.DTOs;
 using SistemaControleLeitura.Application.Interfaces;
-using SistemaControleLeitura.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SistemaControleLeitura.Api.Controllers {
 
     [ApiController]
     [Route("api/usuarios")]
+    [Authorize]
     public class UsuarioController : BaseController {
 
         private readonly IUsuarioService _usuarioService;
@@ -16,6 +17,7 @@ namespace SistemaControleLeitura.Api.Controllers {
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> CadastrarUsuarioAsync([FromBody] UsuarioCadastroDto usuarioDto) {
 
             try {
@@ -82,6 +84,7 @@ namespace SistemaControleLeitura.Api.Controllers {
         }
 
         [HttpPost("/api/autenticacao/login")]
+        [AllowAnonymous]
         public async Task<IActionResult> AutenticarUsuarioAsync([FromBody] LoginDto loginDto) {
 
             try {

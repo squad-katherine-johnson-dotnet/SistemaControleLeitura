@@ -18,6 +18,9 @@ namespace SistemaControleLeitura.Application.Services {
 
         public async Task<UsuarioRespostaDto> CadastrarUsuarioAsync(UsuarioCadastroDto usuarioDto) {
 
+            if (string.IsNullOrWhiteSpace(usuarioDto.Senha) || usuarioDto.Senha.Length < 8)
+                throw new ArgumentException("A senha deve possuir pelo menos 8 caracteres.");
+
             var email = usuarioDto.Email.Trim().ToLowerInvariant();
 
             if (await _usuarioRepository.ExisteEmailAsync(email))

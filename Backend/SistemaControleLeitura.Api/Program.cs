@@ -1,13 +1,14 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
 using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Infrastructure.Data;
 using SistemaControleLeitura.Infrastructure.Repositories;
 using SistemaControleLeitura.Infrastructure.Services;
 using System.Text;
-
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,7 +17,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options => {
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme {
+        Name = "Authorization",
+        Type = SecuritySchemeType.Http,
+        Scheme = "bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Informe o token JWT."
+    });
+
+    options.AddSecurityRequirement(document =>
+        new OpenApiSecurityRequirement {
+            [new OpenApiSecuritySchemeReference("Bearer", document)] = []
+        });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("LeituraDb")
     ?? throw new InvalidOperationException("A connection string 'LeituraDb' não foi encontrada.");
@@ -60,6 +75,11 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddAuthorization(options => {
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 var app = builder.Build();
 

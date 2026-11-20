@@ -135,6 +135,55 @@ namespace SistemaControleLeitura.Tests.Application {
         }
 
         [Fact]
+        public async Task CadastrarUsuarioAsync_QuandoSenhaMenorQue8Caracteres_DeveLancarExcecao() {
+
+            var usuarioDto = new UsuarioCadastroDto {
+                Nome = "Maria",
+                Email = "maria@gmail.com",
+                Senha = "1234567"
+            };
+
+            var exception = await Assert.ThrowsAsync<ArgumentException>(
+                () => _usuarioService.CadastrarUsuarioAsync(usuarioDto)
+            );
+
+            Assert.Equal("A senha deve possuir pelo menos 8 caracteres.",
+                exception.Message
+            );
+
+            _repositoryMock.Verify(repository => repository.ExisteEmailAsync(It.IsAny<string>()),
+                Times.Never
+            );
+
+            _repositoryMock.Verify(repository => repository.CadastrarUsuarioAsync(It.IsAny<Usuario>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task CadastrarUsuarioAsync_QuandoSenhaPossuiExatamente8Caracteres_DeveCadastrarUsuario() {
+
+            var usuarioDto = new UsuarioCadastroDto {
+                Nome = "Maria",
+                Email = "maria@email.com",
+                Senha = "12345678"
+            };
+
+            _repositoryMock.Setup(r => r.ExisteEmailAsync(It.IsAny<string>()))
+                .ReturnsAsync(false);
+
+            _repositoryMock.Setup(r => r.CadastrarUsuarioAsync(It.IsAny<Usuario>()))
+                .Returns(Task.CompletedTask);
+
+            var resultado = await _usuarioService.CadastrarUsuarioAsync(usuarioDto);
+
+            Assert.NotNull(resultado);
+
+            _repositoryMock.Verify(r => r.CadastrarUsuarioAsync(It.IsAny<Usuario>()),
+                Times.Once);
+        }
+
+        [Fact]
         public async Task ObterUsuarioPorIdAsync_QuandoUsuarioExiste_DeveRetornarUsuario() {
 
             Usuario usuario = new Usuario(
