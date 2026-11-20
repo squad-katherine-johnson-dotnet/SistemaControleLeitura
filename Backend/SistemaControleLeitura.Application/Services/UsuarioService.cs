@@ -8,10 +8,12 @@ namespace SistemaControleLeitura.Application.Services {
 
         private readonly IUsuarioRepository _usuarioRepository;
         private readonly PasswordHasher<Usuario> _passwordHasher;
+        private readonly ITokenService _tokenService;
 
-        public UsuarioService(IUsuarioRepository usuarioRepository) {
+        public UsuarioService(IUsuarioRepository usuarioRepository, ITokenService tokenService) {
             _usuarioRepository = usuarioRepository;
             _passwordHasher = new PasswordHasher<Usuario>();
+            _tokenService = tokenService;
         }
 
         public async Task<UsuarioRespostaDto> CadastrarUsuarioAsync(UsuarioCadastroDto usuarioDto) {
@@ -53,6 +55,33 @@ namespace SistemaControleLeitura.Application.Services {
         public async Task<IEnumerable<Usuario>> ObterUsuariosAsync() {
 
             return await _usuarioRepository.ObterUsuariosAsync();
+        }
+
+        public async Task<LoginRespostaDto> LoginAsync(LoginDto loginDto) {
+
+            var email = loginDto.Email.Trim().ToLowerInvariant();
+
+            var usuario = await _usuarioRepository.ObterUsuarioPorEmailAsync(email);
+
+            if (usuario is null)
+                throw new UnauthorizedAccessException("Email ou senha inválidos.");
+
+            var resultado = _passwordHasher.VerifyHashedPassword(
+                usuario,
+                usuario.SenhaHash,
+                loginDto.Senha
+                );
+
+            if (resultado == PasswordVerificationResult.Failed)
+                throw new UnauthorizedAccessException("Email ou senha inválidos.");
+
+            var token = _tokenService.GerarToken(usuario);
+
+            var resposta = new LoginRespostaDto {
+                Token = token
+            };
+
+            return resposta;
         }
     }
 }

@@ -9,11 +9,14 @@ namespace SistemaControleLeitura.Tests.Application {
     public class UsuarioServiceTests {
 
         private readonly Mock<IUsuarioRepository> _repositoryMock;
+        private readonly Mock<ITokenService> _tokenServiceMock;
         private readonly UsuarioService _usuarioService;
 
         public UsuarioServiceTests() {
             _repositoryMock = new Mock<IUsuarioRepository>();
-            _usuarioService = new UsuarioService(_repositoryMock.Object);
+            _tokenServiceMock = new Mock<ITokenService>();
+
+            _usuarioService = new UsuarioService(_repositoryMock.Object, _tokenServiceMock.Object);
         }
 
         [Fact]
