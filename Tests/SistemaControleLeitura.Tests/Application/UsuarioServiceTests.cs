@@ -194,5 +194,141 @@ namespace SistemaControleLeitura.Tests.Application {
                 Times.Once
                 );
         }
+
+        [Fact]
+        public async Task LoginAsync_QuandoCredenciaisValidas_DeveRetornarToken() {
+
+            var senha = "Senha123!";
+            var email = "maria@gmail.com";
+
+            var passwordHasher = new PasswordHasher<Usuario>();
+            var senhaHash = passwordHasher.HashPassword(null!, senha);
+
+            var usuario = new Usuario(
+                "Maria",
+                email,
+                senhaHash
+            );
+
+            var loginDto = new LoginDto {
+                Email = email,
+                Senha = senha
+            };
+
+            _repositoryMock.Setup(r => r.ObterUsuarioPorEmailAsync(email,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(usuario);
+
+            _tokenServiceMock.Setup(t => t.GerarToken(usuario))
+                .Returns("token-falso");
+
+            var resultado = await _usuarioService.LoginAsync(loginDto);
+
+
+            Assert.NotNull(resultado);
+            Assert.Equal("token-falso", resultado.Token);
+
+            _repositoryMock.Verify(r => r.ObterUsuarioPorEmailAsync(email,
+                It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _tokenServiceMock.Verify(t => t.GerarToken(usuario), Times.Once);
+        }
+
+        [Fact]
+        public async Task LoginAsync_QuandoUsuarioNaoExiste_DeveLancarExcecao() {
+
+            var loginDto = new LoginDto {
+                Email = "naoexiste@gmail.com",
+                Senha = "Senha123!"
+            };
+
+            _repositoryMock.Setup(r => r.ObterUsuarioPorEmailAsync(loginDto.Email.Trim().ToLowerInvariant(),
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Usuario?)null);
+
+            var excecao = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+                () => _usuarioService.LoginAsync(loginDto)
+            );
+
+            Assert.Equal("Email ou senha inválidos.", excecao.Message);
+
+            _tokenServiceMock.Verify(
+                t => t.GerarToken(It.IsAny<Usuario>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task LoginAsync_QuandoSenhaIncorreta_DeveLancarExcecao() {
+
+            var senhaCorreta = "Senha123!";
+            var email = "maria@gmail.com";
+
+            var usuario = new Usuario(
+                "Maria",
+                email,
+                new PasswordHasher<Usuario>().HashPassword(null!, senhaCorreta)
+            );
+
+            var loginDto = new LoginDto {
+                Email = email,
+                Senha = "SenhaErrada123!"
+            };
+
+            _repositoryMock.Setup(r => r.ObterUsuarioPorEmailAsync(email,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(usuario);
+
+            var excecao = await Assert.ThrowsAsync<UnauthorizedAccessException>(
+                () => _usuarioService.LoginAsync(loginDto)
+            );
+
+            Assert.Equal("Email ou senha inválidos.", excecao.Message);
+
+            _tokenServiceMock.Verify(
+                t => t.GerarToken(It.IsAny<Usuario>()),
+                Times.Never
+            );
+        }
+
+        [Fact]
+        public async Task LoginAsync_QuandoEmailPossuiEspacosEMaiusculas_DeveNormalizarEmailERetornarToken() {
+
+            var email = "maria@gmail.com";
+            var senha = "Senha123!";
+
+            var usuario = new Usuario(
+                "Maria",
+                email,
+                new PasswordHasher<Usuario>().HashPassword(null!, senha)
+            );
+
+            var loginDto = new LoginDto {
+                Email = " Maria@Gmail.com ",
+                Senha = senha
+            };
+
+            _repositoryMock.Setup(r => r.ObterUsuarioPorEmailAsync(email,
+                    It.IsAny<CancellationToken>()))
+                .ReturnsAsync(usuario);
+
+            _tokenServiceMock.Setup(t => t.GerarToken(usuario))
+                .Returns("token-falso");
+
+            var resultado = await _usuarioService.LoginAsync(loginDto);
+
+            Assert.NotNull(resultado);
+            Assert.Equal("token-falso", resultado.Token);
+
+            _repositoryMock.Verify(r => r.ObterUsuarioPorEmailAsync(email,
+                It.IsAny<CancellationToken>()),
+                Times.Once
+            );
+
+            _tokenServiceMock.Verify(t => t.GerarToken(usuario), Times.Once);
+        }
+
     }
 }
