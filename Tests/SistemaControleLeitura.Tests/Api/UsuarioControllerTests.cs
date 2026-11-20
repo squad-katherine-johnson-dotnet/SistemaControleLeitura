@@ -176,10 +176,68 @@ namespace SistemaControleLeitura.Tests.Api {
             Assert.Equal("Nenhum usuário cadastrado.", resposta.Mensagem);
 
             Assert.NotNull(resposta.Dados);
-            Assert.Equal(0, resposta.Dados.Count);
+            Assert.Empty(resposta.Dados);
 
             _serviceMock.Verify(
                 s => s.ObterUsuariosAsync(),
+                Times.Once
+            );
+        }
+
+        [Fact]
+        public async Task AutenticarUsuarioAsync_QuandoCredenciaisValidas_DeveRetornarOk() {
+
+            var loginDto = new LoginDto {
+                Email = "maria@gmail.com",
+                Senha = "Senha123"
+            };
+
+            var loginResposta = new LoginRespostaDto {
+                Token = "token-falso"
+            };
+
+            _serviceMock.Setup(service => service.LoginAsync(loginDto))
+                .ReturnsAsync(loginResposta);
+
+            var resultado = await _usuarioController.AutenticarUsuarioAsync(loginDto);
+
+            var okResult = Assert.IsType<OkObjectResult>(resultado);
+            var resposta = Assert.IsType<RespostaDto<LoginRespostaDto>>(okResult.Value);
+
+            Assert.Equal(200, okResult.StatusCode);
+            Assert.True(resposta.Sucesso);
+            Assert.Equal("Login realizado com sucesso.", resposta.Mensagem);
+
+            Assert.NotNull(resposta.Dados);
+            Assert.Equal("token-falso", resposta.Dados.Token);
+
+            _serviceMock.Verify(service => service.LoginAsync(loginDto),
+                Times.Once
+            );
+        }
+
+        [Fact]
+        public async Task AutenticarUsuarioAsync_QuandoCredenciaisInvalidas_DeveRetornarUnauthorized() {
+
+            var loginDto = new LoginDto {
+                Email = "maria@gmail.com",
+                Senha = "SenhaErrada"
+            };
+
+            _serviceMock.Setup(service => service.LoginAsync(loginDto))
+                .ThrowsAsync(new UnauthorizedAccessException("Email ou senha inválidos."));
+
+            var resultado = await _usuarioController.AutenticarUsuarioAsync(loginDto);
+
+            var unauthorizedResult = Assert.IsType<UnauthorizedObjectResult>(resultado);
+            var resposta = Assert.IsType<RespostaDto<object>>(unauthorizedResult.Value);
+
+            Assert.Equal(401, unauthorizedResult.StatusCode);
+            Assert.False(resposta.Sucesso);
+            Assert.Equal("Email ou senha inválidos.", resposta.Mensagem);
+            Assert.Null(resposta.Dados);
+
+            _serviceMock.Verify(service => service.LoginAsync(loginDto),
                 Times.Once
             );
         }
