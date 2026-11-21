@@ -53,7 +53,7 @@ namespace SistemaControleLeitura.Api.Controllers {
             }
         }
 
-        [HttpGet]
+        [NonAction]
         public async Task<IActionResult> ObterUsuariosAsync() {
 
             var usuarios = await _usuarioService.ObterUsuariosAsync();
