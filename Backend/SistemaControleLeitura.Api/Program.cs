@@ -5,14 +5,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Application.Services;
+using SistemaControleLeitura.Domain.Interfaces;
 using SistemaControleLeitura.Infrastructure.Data;
 using SistemaControleLeitura.Infrastructure.Repositories;
 using SistemaControleLeitura.Infrastructure.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
 
 builder.Services.AddControllers();
 
@@ -72,6 +71,7 @@ builder.Services.AddAuthentication(options => {
     };
 });
 
+// Cadastro & Login
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -81,9 +81,12 @@ builder.Services.AddAuthorization(options => {
         .Build();
 });
 
+// Metas
+builder.Services.AddScoped<IMetaAnualRepository, MetaAnualRepository>();
+builder.Services.AddScoped<IMetaAnualService, MetaAnualService>();
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();

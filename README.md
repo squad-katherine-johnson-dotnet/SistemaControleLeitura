@@ -103,7 +103,7 @@ erDiagram
 ## 5. Arquitetura
  
 ```
-src/
+Backend/
 ├── SistemaControleLeitura.Api             → Controllers, Program.cs, configuração
 ├── SistemaControleLeitura.Application     → Services (regras de negócio)
 ├── SistemaControleLeitura.Infrastructure  → EF Core, AppDbContext, Repositories, Migrations
@@ -137,22 +137,22 @@ dotnet tool install --global dotnet-ef
 dotnet build
  
 # 2. Criar o banco aplicando as migrations
-dotnet ef database update -p src/SistemaControleLeitura.Infrastructure -s src/SistemaControleLeitura.Api
+dotnet ef database update -p Backend/SistemaControleLeitura.Infrastructure -s Backend/SistemaControleLeitura.Api
  
 # 3. Rodar a API
-dotnet run --project src/SistemaControleLeitura.Api
+dotnet run --project Backend/SistemaControleLeitura.Api
 ```
  
 O terminal mostra o endereço da API. Abra `/swagger` nesse endereço para ver a documentação e testar os endpoints. O Swagger só é habilitado no ambiente `Development`, que é o padrão do `dotnet run`.
  
-**Configuração:** a connection string `LeituraDb` está em `src/SistemaControleLeitura.Api/appsettings.json` e aponta para um arquivo SQLite local (`controle-leitura.db`), criado no passo 2. Não é um segredo. Valores sensíveis, como a chave do token, **não** vão para o repositório: use `dotnet user-secrets` ou variáveis de ambiente.
+**Configuração:** a connection string `LeituraDb` está em `Backend/SistemaControleLeitura.Api/appsettings.json` e aponta para um arquivo SQLite local (`controle-leitura.db`), criado no passo 2. Não é um segredo. Valores sensíveis, como a chave do token, **não** vão para o repositório: use `dotnet user-secrets` ou variáveis de ambiente.
  
 ### Migrations
  
 Cada mudança no modelo gera uma migration com nome que descreve a mudança:
  
 ```bash
-dotnet ef migrations add NomeDescritivo -p src/SistemaControleLeitura.Infrastructure -s src/SistemaControleLeitura.Api
+dotnet ef migrations add NomeDescritivo -p Backend/SistemaControleLeitura.Infrastructure -s Backend/SistemaControleLeitura.Api
 ```
  
 ## 7. Fluxo de trabalho do squad
