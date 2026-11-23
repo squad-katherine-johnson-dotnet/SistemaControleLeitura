@@ -1,12 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using SistemaControleLeitura.Application.DTOs;
 using SistemaControleLeitura.Application.Interfaces;
-using SistemaControleLeitura.Domain.Entities;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SistemaControleLeitura.Api.Controllers {
 
     [ApiController]
     [Route("api/usuarios")]
+    [Authorize]
     public class UsuarioController : BaseController {
 
         private readonly IUsuarioService _usuarioService;
@@ -16,6 +17,7 @@ namespace SistemaControleLeitura.Api.Controllers {
         }
 
         [HttpPost]
+        [AllowAnonymous]
         public async Task<IActionResult> CadastrarUsuarioAsync([FromBody] UsuarioCadastroDto usuarioDto) {
 
             try {
@@ -44,14 +46,14 @@ namespace SistemaControleLeitura.Api.Controllers {
                     Mensagem = ex.Message
                 };
 
-                if (ex.Message == "E-mail já cadastrado.")
+                if (ex.Message == "Email já cadastrado.")
                     return Conflict(resposta);
 
                 return BadRequest(resposta);
             }
         }
 
-        [HttpGet]
+        [NonAction]
         public async Task<IActionResult> ObterUsuariosAsync() {
 
             var usuarios = await _usuarioService.ObterUsuariosAsync();
@@ -79,6 +81,32 @@ namespace SistemaControleLeitura.Api.Controllers {
             };
 
             return Ok(respostaPadrao);
+        }
+
+        [HttpPost("/api/autenticacao/login")]
+        [AllowAnonymous]
+        public async Task<IActionResult> AutenticarUsuarioAsync([FromBody] LoginDto loginDto) {
+
+            try {
+                var login = await _usuarioService.LoginAsync(loginDto);
+
+                var resposta = new RespostaDto<LoginRespostaDto>() {
+                    Sucesso = true,
+                    Mensagem = "Login realizado com sucesso.",
+                    Dados = login
+                };
+
+                return Ok(resposta);
+            }
+            catch (UnauthorizedAccessException ex) {
+
+                var resposta = new RespostaDto<object> {
+                    Sucesso = false,
+                    Mensagem = ex.Message
+                };
+
+                return Unauthorized(resposta);
+            }
         }
     }
 }

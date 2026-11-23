@@ -12,5 +12,6 @@ namespace SistemaControleLeitura.Application.Interfaces {
 
         Task<IEnumerable<Usuario>> ObterUsuariosAsync();
 
+        Task<LoginRespostaDto> LoginAsync(LoginDto loginDto);
     }
 }
