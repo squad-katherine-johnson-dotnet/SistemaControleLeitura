@@ -22,6 +22,10 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connect
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 // Metas
+// Livros
+builder.Services.AddScoped<ILivroRepository, LivroRepository>();
+builder.Services.AddScoped<ILivroService, LivroService>();
+
 builder.Services.AddScoped<IMetaAnualRepository, MetaAnualRepository>();
 builder.Services.AddScoped<IMetaAnualService, MetaAnualService>();
 
