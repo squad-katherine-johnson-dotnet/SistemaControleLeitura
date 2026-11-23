@@ -19,7 +19,21 @@ public class Livro
         Titulo = titulo.Trim();
         Autor = autor.Trim();
         NumeroPaginas = numeroPaginas;
+    }
 
+    // Altera título, autor e páginas de um livro que já existe.
+    // Usa as mesmas validações do construtor, então um livro nunca fica inválido.
+    // Se algum dado for inválido, lança ArgumentException ANTES de mudar qualquer campo.
+    // O dono (UsuarioId) não muda: um livro não troca de usuária.
+    public void Atualizar(string titulo, string autor, int numeroPaginas)
+    {
+        ValidarTitulo(titulo);
+        ValidarAutor(autor);
+        ValidarNumeroPaginas(numeroPaginas);
+
+        Titulo = titulo.Trim();
+        Autor = autor.Trim();
+        NumeroPaginas = numeroPaginas;
     }
 
     private static void ValidarUsuario(int usuarioId)
