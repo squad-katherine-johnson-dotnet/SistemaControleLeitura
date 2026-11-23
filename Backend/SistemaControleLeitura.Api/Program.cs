@@ -3,6 +3,7 @@ using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Infrastructure.Data;
 using SistemaControleLeitura.Infrastructure.Repositories;
+using SistemaControleLeitura.Domain.Interfaces;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,6 +21,9 @@ var connectionString = builder.Configuration.GetConnectionString("LeituraDb")
 builder.Services.AddDbContext<AppDbContext>(options => options.UseSqlite(connectionString));
 builder.Services.AddScoped<IUsuarioRepository, UsuarioRepository>();
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+// Metas
+builder.Services.AddScoped<IMetaAnualRepository, MetaAnualRepository>();
+builder.Services.AddScoped<IMetaAnualService, MetaAnualService>();
 
 var app = builder.Build();
 
