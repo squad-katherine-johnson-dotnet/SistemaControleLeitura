@@ -81,11 +81,12 @@ builder.Services.AddAuthorization(options => {
         .Build();
 });
 
-// Metas
+
 // Livros
 builder.Services.AddScoped<ILivroRepository, LivroRepository>();
 builder.Services.AddScoped<ILivroService, LivroService>();
 
+// Metas
 builder.Services.AddScoped<IMetaAnualRepository, MetaAnualRepository>();
 builder.Services.AddScoped<IMetaAnualService, MetaAnualService>();
 
