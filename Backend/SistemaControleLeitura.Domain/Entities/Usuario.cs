@@ -29,9 +29,9 @@ public class Usuario {
     }
 
     private static void ValidarEmail(string email) {
-        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("E-mail informado é inválido.");
+        if (string.IsNullOrWhiteSpace(email)) throw new ArgumentException("Email informado é inválido.");
 
-        if (!new EmailAddressAttribute().IsValid(email)) throw new ArgumentException("E-mail informado é inválido.");
+        if (!new EmailAddressAttribute().IsValid(email)) throw new ArgumentException("Email informado é inválido.");
     }
 
     private static void ValidarSenhaHash(string senhaHash) {
