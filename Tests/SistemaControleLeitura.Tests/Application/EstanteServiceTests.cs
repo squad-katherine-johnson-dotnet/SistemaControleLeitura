@@ -19,16 +19,15 @@ public class EstanteServiceTests
         _service = new EstanteService(_repositoryMock.Object);
     }
 
-    private static Livro CriarLivro()
+    private static Livro CriarLivro() 
     {
-        return new Livro
-        {
-            Id = 1,
-            UsuarioId = 1,
-            Titulo = "Dom Casmurro",
-            Autor = "Machado de Assis",
-            NumeroPaginas = 256
-        };
+
+        return new Livro(
+            1,
+            "Dom Casmurro",
+            "Machado de Assis",
+            256
+        );
     }
 
     private static Leitura CriarLeitura(
