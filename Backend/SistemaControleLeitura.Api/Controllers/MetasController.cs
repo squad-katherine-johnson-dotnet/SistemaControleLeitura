@@ -42,5 +42,53 @@ namespace SistemaControleLeitura.Api.Controllers
                 return BadRequest(respostaErro);
             }
         }
+
+        [HttpGet("{ano}/progresso")]
+        public async Task<IActionResult> ConsultarProgressoAsync(int ano)
+        {
+            try
+            {
+                var progresso = await _metaAnualService.ConsultarProgressoAsync(UsuarioId, ano);
+
+                var respostaPadrao = new RespostaDto<ProgressoMetaAnualDto>
+                {
+                    Sucesso = true,
+                    Mensagem = "Progresso da meta anual consultado com sucesso.",
+                    Dados = progresso
+                };
+
+                return Ok(respostaPadrao);
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                var respostaErro = new RespostaDto<object>
+                {
+                    Sucesso = false,
+                    Mensagem = ex.Message
+                };
+
+                return Unauthorized(respostaErro);
+            }
+            catch (ArgumentException ex)
+            {
+                var respostaErro = new RespostaDto<object>
+                {
+                    Sucesso = false,
+                    Mensagem = ex.Message
+                };
+
+                return BadRequest(respostaErro);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                var respostaErro = new RespostaDto<object>
+                {
+                    Sucesso = false,
+                    Mensagem = ex.Message
+                };
+
+                return NotFound(respostaErro);
+            }
+        }
     }
 }
