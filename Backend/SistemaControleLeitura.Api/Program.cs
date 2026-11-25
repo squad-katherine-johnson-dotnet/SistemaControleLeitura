@@ -90,6 +90,9 @@ builder.Services.AddScoped<ILivroService, LivroService>();
 builder.Services.AddScoped<IMetaAnualRepository, MetaAnualRepository>();
 builder.Services.AddScoped<IMetaAnualService, MetaAnualService>();
 
+builder.Services.AddScoped<IEstanteRepository, EstanteRepository>();
+builder.Services.AddScoped<IEstanteService, EstanteService>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
