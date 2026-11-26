@@ -21,14 +21,14 @@ public class EstanteController : BaseController
     {
         try
         {
-            await _service.AdicionarLivroAsync(
+            var livro = await _service.AdicionarLivroAsync(
                 dto.LivroId, UsuarioId);
 
             return StatusCode(201, new RespostaDto<object>
             {
                 Sucesso = true,
                 Mensagem = "Livro adicionado à estante com sucesso.",
-                Dados = null
+                Dados = livro
             });
         }
         catch (ArgumentException ex)
@@ -52,14 +52,14 @@ public class EstanteController : BaseController
     {
         try
         {
-            await _service.AlterarStatusAsync(
+            var leitura = await _service.AlterarStatusAsync(
                 id, UsuarioId, dto);
 
             return Ok(new RespostaDto<object>
             {
                 Sucesso = true,
                 Mensagem = "Status da leitura atualizado com sucesso.",
-                Dados = null
+                Dados = leitura
             });
         }
         catch (ArgumentException ex)
@@ -81,14 +81,14 @@ public class EstanteController : BaseController
     {
         try
         {
-            await _service.IniciarReleituraAsync(
+            var leitura = await _service.IniciarReleituraAsync(
                 id, UsuarioId);
 
             return StatusCode(201, new RespostaDto<object>
             {
                 Sucesso = true,
                 Mensagem = "Nova leitura iniciada com sucesso.",
-                Dados = null
+                Dados = leitura
             });
         }
         catch (KeyNotFoundException ex)

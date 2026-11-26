@@ -1,6 +1,6 @@
 using SistemaControleLeitura.Domain.Entities;
 
-namespace SistemaControleLeitura.Application.Interfaces
+namespace SistemaControleLeitura.Domain.Interfaces
 {
     // Contrato do repositório de livros: o Service diz o que precisa,
     // a Infrastructure (LivroRepository) cumpre com o banco.

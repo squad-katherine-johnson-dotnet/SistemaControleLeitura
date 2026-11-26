@@ -1,7 +1,7 @@
 using SistemaControleLeitura.Domain.Entities;
-using SistemaControleLeitura.Application.DTOs;
+using SistemaControleLeitura.Domain.Enums;
 
-namespace SistemaControleLeitura.Application.Interfaces;
+namespace SistemaControleLeitura.Domain.Interfaces;
 
 public interface IEstanteRepository
 {
@@ -25,10 +25,8 @@ public interface IEstanteRepository
         int leituraId,
         int usuarioId);
 
-    Task<List<EstanteItemDto>> ListarEstanteAsync(
-        int usuarioId,
-        string? status,
-        int? ano);
+    Task<List<(ItemEstante Item, Livro Livro, Leitura UltimaLeitura)>>
+        ListarEstanteAsync(int usuarioId, StatusLeitura? status, int? ano);
 
     Task RemoverItemAsync(ItemEstante item);
     

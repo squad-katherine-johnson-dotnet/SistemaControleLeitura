@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Moq;
 using SistemaControleLeitura.Application.DTOs;
-using SistemaControleLeitura.Application.Interfaces;
+using SistemaControleLeitura.Domain.Interfaces;
 using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Domain.Entities;
+using SistemaControleLeitura.Application.Interfaces;
 
 namespace SistemaControleLeitura.Tests.Application {
     public class UsuarioServiceTests {

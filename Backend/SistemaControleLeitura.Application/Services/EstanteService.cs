@@ -2,6 +2,7 @@ using SistemaControleLeitura.Application.DTOs;
 using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Domain.Entities;
 using SistemaControleLeitura.Domain.Enums;
+using SistemaControleLeitura.Domain.Interfaces;
 
 namespace SistemaControleLeitura.Application.Services;
 
@@ -14,10 +15,20 @@ public class EstanteService : IEstanteService
         _repository = repository;
     }
 
-    public async Task AdicionarLivroAsync(
+    private static string FormatarStatus(StatusLeitura status) {
+        return status switch {
+            StatusLeitura.QueroLer => "Quero ler",
+            StatusLeitura.Lendo => "Lendo",
+            StatusLeitura.Lido => "Lido",
+            _ => status.ToString()
+        };
+    }
+
+    public async Task<EstanteItemDto> AdicionarLivroAsync(
         int livroId,
-        int usuarioId)
-    {
+        int usuarioId) 
+    { 
+
         if (livroId <= 0)
             throw new ArgumentException("ID do livro inválido.");
 
@@ -47,10 +58,27 @@ public class EstanteService : IEstanteService
 
         await _repository.AdicionarItemComLeituraAsync(
             item, leitura);
+
+        return new EstanteItemDto {
+            ItemEstanteId = item.Id,
+            LivroId = livro.Id,
+            LeituraId = leitura.Id,
+            Titulo = livro.Titulo,
+            Autor = livro.Autor,
+            NumeroPaginas = livro.NumeroPaginas,
+            Status = FormatarStatus(leitura.Status),
+            DataAdicao = item.DataAdicao,
+            DataInicio = leitura.DataInicio,
+            DataTermino = leitura.DataTermino
+        };
     }
 
-    public async Task AlterarStatusAsync(int leituraId, int usuarioId, AtualizarStatusLeituraDto dto)
+    public async Task<EstanteItemDto> AlterarStatusAsync(
+        int leituraId,
+        int usuarioId,
+        AtualizarStatusLeituraDto dto)
     {
+
         if (!Enum.TryParse<StatusLeitura>(
             dto.Status, true, out var novoStatus) ||
             !Enum.IsDefined(novoStatus))
@@ -116,10 +144,33 @@ public class EstanteService : IEstanteService
         leitura.Status = novoStatus;
 
         await _repository.SalvarAlteracoesAsync();
+
+        var resultado = await _repository.ObterItemComUltimaLeituraAsync(
+        leitura.ItemEstanteId, usuarioId);
+
+        if (resultado.Item == null || resultado.Livro == null)
+            throw new KeyNotFoundException(
+                "Livro não encontrado na estante.");
+
+        return new EstanteItemDto {
+            ItemEstanteId = resultado.Item.Id,
+            LivroId = resultado.Livro.Id,
+            LeituraId = leitura.Id,
+            Titulo = resultado.Livro.Titulo,
+            Autor = resultado.Livro.Autor,
+            NumeroPaginas = resultado.Livro.NumeroPaginas,
+            Status = FormatarStatus(leitura.Status),
+            DataAdicao = resultado.Item.DataAdicao,
+            DataInicio = leitura.DataInicio,
+            DataTermino = leitura.DataTermino
+        };
     }
 
-    public async Task IniciarReleituraAsync(int itemId, int usuarioId)
-    {
+    public async Task<EstanteItemDto> IniciarReleituraAsync(
+        int itemId,
+        int usuarioId) 
+    { 
+
         var resultado = await _repository
             .ObterItemComUltimaLeituraAsync(itemId, usuarioId);
 
@@ -146,22 +197,54 @@ public class EstanteService : IEstanteService
         };
 
         await _repository.AdicionarNovaLeituraAsync(novaLeitura);
+
+        return new EstanteItemDto {
+            ItemEstanteId = resultado.Item.Id,
+            LivroId = resultado.Livro.Id,
+            LeituraId = novaLeitura.Id,
+            Titulo = resultado.Livro.Titulo,
+            Autor = resultado.Livro.Autor,
+            NumeroPaginas = resultado.Livro.NumeroPaginas,
+            Status = FormatarStatus(novaLeitura.Status),
+            DataAdicao = resultado.Item.DataAdicao,
+            DataInicio = novaLeitura.DataInicio,
+            DataTermino = novaLeitura.DataTermino
+        };
     }
 
-    public async Task<List<EstanteItemDto>> ListarEstanteAsync(int usuarioId, string? status, int? ano)
-    {
-        if (!string.IsNullOrWhiteSpace(status) &&
-            !Enum.TryParse<StatusLeitura>(status, true, out _))
-        {
-            throw new ArgumentException(
-                "Status de leitura inválido.");
+    public async Task<List<EstanteItemDto>> ListarEstanteAsync(
+        int usuarioId,
+        string? status,
+        int? ano) {
+        StatusLeitura? statusFiltro = null;
+
+        if (!string.IsNullOrWhiteSpace(status)) {
+            if (!Enum.TryParse<StatusLeitura>(status, true, out var statusConvertido) ||
+                !Enum.IsDefined(statusConvertido)) {
+                throw new ArgumentException("Status de leitura inválido.");
+            }
+
+            statusFiltro = statusConvertido;
         }
 
         if (ano.HasValue && (ano.Value < 1 || ano.Value > 9999))
             throw new ArgumentException("Ano inválido.");
 
-        return await _repository.ListarEstanteAsync(
-            usuarioId, status, ano);
+        var itens = await _repository.ListarEstanteAsync(
+            usuarioId, statusFiltro, ano);
+
+        return itens.Select(registro => new EstanteItemDto {
+            ItemEstanteId = registro.Item.Id,
+            LivroId = registro.Livro.Id,
+            LeituraId = registro.UltimaLeitura.Id,
+            Titulo = registro.Livro.Titulo,
+            Autor = registro.Livro.Autor,
+            NumeroPaginas = registro.Livro.NumeroPaginas,
+            Status = FormatarStatus(registro.UltimaLeitura.Status),
+            DataAdicao = registro.Item.DataAdicao,
+            DataInicio = registro.UltimaLeitura.DataInicio,
+            DataTermino = registro.UltimaLeitura.DataTermino
+        }).ToList();
     }
 
     public async Task RemoverLivroAsync(int itemId, int usuarioId)
