@@ -1,183 +1,221 @@
-# Sistema de Controle de Leitura
+# 📚 Sistema de Controle de Leitura
+
+## 🎯 Visão Geral e Objetivo
  
-API REST em .NET 10 para registrar leituras, acompanhar o status de cada livro e comparar o que foi lido com a meta anual.
- 
-Projeto do squad **Katherine Johnson** (bootcamp .NET).
- 
-## 1. Problema, público e por que importa
- 
-> **Rascunho do squad: confirmar ou ajustar o texto.**
- 
-Quem lê bastante lembra dos títulos marcantes, mas não do conjunto: o que terminou, o que deixou pela metade e quanto falta para a meta do ano. Sem registro, a resposta depende da memória, e a meta só é lembrada no fim do ano, quando já é tarde para ajustar.
- 
-**Público:** leitoras que querem acompanhar o que leram e cumprir uma meta anual, seja pessoal, de um clube do livro ou de uma comunidade de leitura.
- 
-O problema tem três partes: falta de **registro** (leituras espalhadas), falta de **acompanhamento** (sem datas, não há ritmo) e falta de **meta visível** (a meta não é comparada com o que já foi lido).
- 
-### Perguntas do enunciado
- 
-| Pergunta | Resposta do squad |
-|---|---|
-| Quem é a leitora? | _a definir pelo squad_ |
-| Em que momento percebe que está atrasada? | _a definir pelo squad_ |
-| Meta de livros ou de páginas? Por quê? | **Livros.** O enunciado define o progresso em livros lidos, e a contagem é simples de registrar e de entender. _Confirmar o motivo._ |
-| Quanto tempo tem para registrar uma leitura? | _a definir pelo squad_ |
- 
-## 2. MVP e extras
- 
-O teste usado: *sem essa funcionalidade, o problema continua sem solução?*
- 
-**MVP**
-- Cadastro e login da usuária (com token).
-- Cadastro de livros.
-- Adição do livro à estante, com status **Quero ler**.
-- Mudança de status respeitando a ordem: Quero ler → Lendo → Lido.
-- Meta anual com progresso.
-**Extras (fora do MVP)**
-- Avaliação com nota e comentário.
-- Busca por autora.
-- Catálogo compartilhado de livros entre usuárias.
-## 3. Modelo de dados
- 
-```mermaid
-erDiagram
-    USUARIO ||--o{ LIVRO : cadastra
-    USUARIO ||--o{ META_ANUAL : define
-    LIVRO ||--o| ITEM_ESTANTE : "está em"
-    ITEM_ESTANTE ||--|{ LEITURA : "tem ciclos de"
- 
-    USUARIO {
-        int Id
-        string Nome
-        string Email "único"
-        string SenhaHash
-    }
-    LIVRO {
-        int Id
-        int UsuarioId
-        string Titulo
-        string Autor
-        int NumeroPaginas
-    }
-    ITEM_ESTANTE {
-        int Id
-        int LivroId "único"
-        datetime DataAdicao
-    }
-    LEITURA {
-        int Id
-        int ItemEstanteId
-        string Status "QueroLer, Lendo, Lido"
-        datetime DataInicio "opcional"
-        datetime DataTermino "opcional"
-    }
-    META_ANUAL {
-        int Id
-        int UsuarioId
-        int Ano
-        int QuantidadeMeta
-    }
+API REST desenvolvida em .NET 10 para permitir que leitoras organizem seus livros, acompanhem o andamento das leituras e monitorem o progresso de suas metas anuais.
+
+O sistema permite cadastrar uma conta, registrar livros, adicioná-los à estante, atualizar o status de leitura e acompanhar a quantidade de livros concluídos em cada ano.
+
+Projeto desenvolvido pelo squad Katherine Johnson, como parte do bootcamp de Desenvolvimento .NET.
+
+## 💻 Tecnologias Utilizadas
+- **Backend:** C#, .NET 10 e ASP.NET Core Web API.
+- **Persistência de dados:** Entity Framework Core 10 e SQLite.
+- **Autenticação:** JWT (JSON Web Token).
+- **Testes:** xUnit e Moq.
+- **Documentação da API:** Swagger.
+
+## 📁 Estrutura do Projeto
+
+```text
+SistemaControleLeitura/
+├── Backend/
+│   ├── SistemaControleLeitura.Api/
+│   ├── SistemaControleLeitura.Application/
+│   ├── SistemaControleLeitura.Domain/
+│   └── SistemaControleLeitura.Infrastructure/
+└── Tests/
+    └── SistemaControleLeitura.Tests/
 ```
- 
-### Decisões de modelagem
- 
-- **`ItemEstante` separado de `Leitura`.** O enunciado pede que o livro apareça **uma única vez** na estante (regra 4) e que reler crie uma **nova leitura**, mantendo a anterior como concluída (regra 1). O `ItemEstante` representa o livro estar na estante (único por livro) e cada `Leitura` é um ciclo de leitura dele.
-- **O status fica só na `Leitura`.** O `ItemEstante` não guarda status, para não existirem duas fontes da mesma informação. O status atual do livro é o da leitura mais recente.
-- **Releitura.** Só é permitida se a última leitura estiver **Lido**. A nova leitura nasce em **Quero ler**, para que haja uma única regra de transição. O enunciado não define isso: é decisão do squad.
-- **`DataInicio` opcional.** Uma leitura em Quero ler ainda não começou.
-- **Exclusão.** Excluir um livro é recusado se ele está na estante (regras 4 e 8). Retirar o livro da estante apaga as leituras dele.
-- **Avaliação** fica fora do MVP e entrará em uma migration própria, ligada à `Leitura` (no máximo uma por leitura).
-- **Isolamento por usuária:** todo dado pertence a uma usuária (`Livro.UsuarioId`, `MetaAnual.UsuarioId`). A estante é alcançada pelo livro.
-## 4. Regras de negócio
- 
-1. As etapas seguem a ordem Quero ler → Lendo → Lido. Um livro Lido não volta para Lendo; reler cria nova leitura.
-2. Lido exige data de término, que não pode ser anterior à de início.
-3. Só se avalia o que foi concluído.
-4. Um livro aparece uma vez na estante.
-5. A leitura conta para o ano em que foi **concluída**.
-6. Progresso da meta: livros lidos no ano; percentual (lidos ÷ meta); média mensal necessária (livros que faltam ÷ meses restantes, contando o mês atual). Meta atingida: média zero.
-7. Uma meta por ano por usuária.
-8. Livro que está em alguma estante não pode ser excluído.
-9. Cada usuária vê apenas os próprios dados.
-10. E-mail único e senha com no mínimo 8 caracteres.
-## 5. Arquitetura
- 
-```
-Backend/
-├── SistemaControleLeitura.Api             → Controllers, Program.cs, configuração
-├── SistemaControleLeitura.Application     → Services (regras de negócio)
-├── SistemaControleLeitura.Infrastructure  → EF Core, AppDbContext, Repositories, Migrations
-└── SistemaControleLeitura.Domain          → Entidades e enums
-```
- 
-Correspondência com as camadas do enunciado:
- 
-| Enunciado | Projeto |
-|---|---|
-| Controller | Api |
-| Service | Application |
-| Repository | Infrastructure |
- 
-As dependências apontam para dentro: `Api` → `Application` e `Infrastructure` → `Domain`. O `Domain` não depende de nenhum outro projeto.
- 
-**Tecnologias:** .NET 10, ASP.NET Core Web API, Entity Framework Core 10 com SQLite, Swagger (Swashbuckle).
- 
-## 6. Como executar localmente
- 
-**Pré-requisitos:** [.NET 10 SDK](https://dotnet.microsoft.com/download) e a ferramenta do EF Core:
- 
+
+O backend está organizado em camadas, separando as responsabilidades da aplicação:
+
+- **Api:** Controllers, configuração e inicialização da API.
+- **Application:** Services e regras de negócio.
+- **Domain:** Entidades e enums do domínio.
+- **Infrastructure:** Persistência de dados, Entity Framework Core, Repositories e Migrations.
+- **Tests:** Testes automatizados da aplicação.
+
+## ⚙️ Como Executar o Backend
+
+### Pré-requisitos
+
+- .NET 10 SDK.
+- EF Core CLI 10.0.14.
+
+Caso a ferramenta EF Core CLI ainda não esteja instalada, execute:
+
 ```bash
-dotnet tool install --global dotnet-ef
+dotnet tool install --global dotnet-ef --version 10.0.14
 ```
- 
-**Passo a passo** (a partir da raiz do repositório):
- 
+
+### Passo a passo
+
+Na raiz do repositório, restaure e compile o projeto:
+
 ```bash
-# 1. Restaurar e compilar
 dotnet build
- 
-# 2. Criar o banco aplicando as migrations
+```
+
+Configure as credenciais JWT utilizando User Secrets. Primeiro, acesse a pasta da API:
+
+```bash
+cd Backend/SistemaControleLeitura.Api
+```
+
+Gere uma chave secreta aleatória e configure as demais informações:
+
+```powershell
+$jwtSecret = [Convert]::ToBase64String([Security.Cryptography.RandomNumberGenerator]::GetBytes(32))
+dotnet user-secrets set "Jwt:SecretKey" $jwtSecret
+dotnet user-secrets set "Jwt:Issuer" "SistemaControleLeitura"
+dotnet user-secrets set "Jwt:Audience" "SistemaControleLeitura"
+dotnet user-secrets set "Jwt:ExpirationInMinutes" "60"
+```
+
+Retorne à raiz do projeto:
+
+```bash
+cd ../..
+```
+
+Aplique as migrations para criar ou atualizar o banco de dados:
+
+```bash
 dotnet ef database update -p Backend/SistemaControleLeitura.Infrastructure -s Backend/SistemaControleLeitura.Api
- 
-# 3. Rodar a API
+```
+
+Execute a API:
+
+```bash
 dotnet run --project Backend/SistemaControleLeitura.Api
 ```
- 
-O terminal mostra o endereço da API. Abra `/swagger` nesse endereço para ver a documentação e testar os endpoints. O Swagger só é habilitado no ambiente `Development`, que é o padrão do `dotnet run`.
- 
-**Configuração:** a connection string `LeituraDb` está em `Backend/SistemaControleLeitura.Api/appsettings.json` e aponta para um arquivo SQLite local (`controle-leitura.db`), criado no passo 2. Não é um segredo. Valores sensíveis, como a chave do token, **não** vão para o repositório: use `dotnet user-secrets` ou variáveis de ambiente.
- 
-### Migrations
- 
-Cada mudança no modelo gera uma migration com nome que descreve a mudança:
- 
+
+### Swagger
+
+Com a API em execução, acesse `/swagger` no endereço informado pelo terminal para consultar a documentação e testar os endpoints.
+
+## ✨ Funcionalidades Implementadas
+
+### Cadastro e autenticação de usuárias
+
+- Cadastro de usuárias com validação dos dados.
+- Validação de e-mail único.
+- Armazenamento de senha com hash.
+- Login com autenticação JWT.
+- Proteção dos endpoints por autenticação.
+- Isolamento dos dados por usuária autenticada.
+
+### Gerenciamento de livros
+
+- Cadastro de livros.
+- Listagem dos livros cadastrados.
+- Consulta de livro por ID.
+- Atualização dos dados de um livro.
+- Exclusão de livros, respeitando as regras de negócio.
+
+### Gerenciamento da estante
+
+- Adição de livros à estante.
+- Listagem dos livros da estante.
+- Filtro por status de leitura.
+- Alteração do status de leitura.
+- Validação das regras de transição de status.
+- Início de releitura de livros concluídos.
+- Remoção de livros da estante.
+
+### Metas anuais
+
+- Definição de meta anual de leitura.
+- Acompanhamento da quantidade de livros concluídos.
+- Cálculo do percentual de progresso.
+- Cálculo da média mensal necessária para atingir a meta.
+
+## 📌 Regras de Negócio
+
+- O fluxo de leitura segue a ordem **Quero ler → Lendo → Lido**.
+- Um livro marcado como **Lido** não pode voltar para **Lendo**.
+- Para concluir uma leitura, é necessário informar a data de término, que não pode ser anterior à data de início.
+- Um livro pode aparecer apenas uma vez na estante de cada usuária.
+- Uma releitura cria um novo ciclo de leitura, preservando o histórico anterior.
+- A leitura é contabilizada no ano em que foi concluída.
+- Cada usuária pode possuir apenas uma meta por ano.
+- Livros que estão na estante não podem ser excluídos.
+- Cada usuária pode visualizar e gerenciar somente seus próprios dados.
+- O e-mail deve ser único e a senha deve possuir no mínimo 8 caracteres.
+
+## 📌 Endpoints da API
+
+Os endpoints abaixo estão documentados no Swagger. As rotas protegidas exigem autenticação via JWT.
+
+### Usuário
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/usuarios` | Cadastra uma usuária. |
+| `POST` | `/api/autenticacao/login` | Realiza o login e retorna o token JWT. |
+
+### Livros
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/livros` | Cadastra um livro. |
+| `GET` | `/api/livros` | Lista os livros da usuária autenticada. |
+| `GET` | `/api/livros/{id}` | Consulta um livro por ID. |
+| `PUT` | `/api/livros/{id}` | Atualiza os dados de um livro. |
+| `DELETE` | `/api/livros/{id}` | Exclui um livro. |
+
+### Estante
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `POST` | `/api/estante` | Adiciona um livro à estante. |
+| `GET` | `/api/estante` | Lista os livros da estante. |
+| `PATCH` | `/api/leituras/{id}/status` | Altera o status de uma leitura. |
+| `POST` | `/api/estante/{id}/leituras` | Inicia uma nova leitura (releitura). |
+| `DELETE` | `/api/estante/{id}` | Remove um livro da estante. |
+
+### Metas
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| `PUT` | `/api/metas/{ano}` | Define ou atualiza a meta de leitura de um ano. |
+| `GET` | `/api/metas/{ano}/progresso` | Consulta o progresso da meta anual. |
+
+A documentação interativa, incluindo parâmetros e formatos de requisição e resposta, está disponível pelo Swagger durante a execução da API.
+
+
+## 🧪 Testes Automatizados
+
+O projeto possui testes automatizados utilizando **xUnit** e **Moq**, contemplando serviços e regras de negócio da aplicação.
+
+Para executar os testes, utilize na raiz do repositório:
+
 ```bash
-dotnet ef migrations add NomeDescritivo -p Backend/SistemaControleLeitura.Infrastructure -s Backend/SistemaControleLeitura.Api
+dotnet test
 ```
- 
-## 7. Fluxo de trabalho do squad
- 
-- Uma branch por funcionalidade (`feat/...`, `fix/...`) e um Pull Request para cada uma, revisado por outra pessoa antes do merge.
-- Commits no padrão [Conventional Commits](https://www.conventionalcommits.org/pt-br/), por exemplo `feat: adiciona mudança de status da leitura`.
-- Tarefas organizadas em um quadro Kanban no GitHub Projects, com uma issue por funcionalidade do MVP.
-## 8. Status
- 
-| Item | Situação |
-|---|---|
-| Estrutura em camadas e banco (migration `Inicial`) | Pronto |
-| Cadastro e login | _a fazer_ |
-| Livros | _a fazer_ |
-| Estante e mudança de status | _a fazer_ |
-| Meta anual | _a fazer_ |
-| Testes automatizados | _a fazer_ |
-| Publicação | _a fazer_ |
- 
-## 9. Squad
- 
-| Integrante | Responsabilidade |
-|---|---|
-| Mariana | Configuração do projeto e do banco; Livros |
-| Bianca | Cadastro e conta |
-| Yasmin | Estante e estatus |
-| Rosana | Meta anual e progresso |
+
+## 🧩 Modelo de Dados e Decisões de Modelagem
+
+O domínio é composto pelas entidades principais:
+
+- **Usuario:** representa a usuária cadastrada.
+- **Livro:** armazena os dados dos livros cadastrados.
+- **ItemEstante:** representa a presença de um livro na estante.
+- **Leitura:** representa cada ciclo de leitura de um livro.
+- **MetaAnual:** armazena a meta definida para determinado ano.
+
+A separação entre `ItemEstante` e `Leitura` permite que um livro permaneça uma única vez na estante e tenha vários ciclos de leitura ao longo do tempo.
+
+O status é armazenado na entidade `Leitura`, evitando duplicidade de informações. O status atual é determinado pela leitura mais recente.
+
+A avaliação com nota e comentário, busca por autora e catálogo compartilhado foram definidos como funcionalidades extras, fora do MVP.
+
+## 👩‍💻 Integrantes e Contribuições
+
+- **Bianca Fernandes:** Cadastro, autenticação JWT e integração da base da API.
+- **Mariana Brombilla:** Configuração do projeto e do banco de dados e gerenciamento de livros.
+- **Yasmin Bezerra:** Gerenciamento da estante e status de leitura.
+- **Rosana Lima:** Metas anuais e acompanhamento do progresso.
+
  
