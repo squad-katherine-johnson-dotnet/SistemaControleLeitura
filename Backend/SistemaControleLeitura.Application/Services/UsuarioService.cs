@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using SistemaControleLeitura.Application.DTOs;
-using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Domain.Entities;
+using SistemaControleLeitura.Domain.Interfaces;
+using SistemaControleLeitura.Application.Interfaces;
 
 namespace SistemaControleLeitura.Application.Services {
     public class UsuarioService : IUsuarioService {

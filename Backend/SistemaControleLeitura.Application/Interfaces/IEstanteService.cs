@@ -4,16 +4,16 @@ namespace SistemaControleLeitura.Application.Interfaces;
 
 public interface IEstanteService
 {
-    Task AdicionarLivroAsync(
+    Task<EstanteItemDto> AdicionarLivroAsync(
         int livroId,
         int usuarioId);
 
-    Task AlterarStatusAsync(
+    Task<EstanteItemDto> AlterarStatusAsync(
         int leituraId,
         int usuarioId,
         AtualizarStatusLeituraDto dto);
 
-    Task IniciarReleituraAsync(
+    Task<EstanteItemDto> IniciarReleituraAsync(
         int itemId,
         int usuarioId);
 

@@ -1,8 +1,10 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
+using SistemaControleLeitura.Application.DTOs;
 using SistemaControleLeitura.Application.Interfaces;
 using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Domain.Interfaces;
@@ -13,7 +15,25 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .ConfigureApiBehaviorOptions(options => {
+        options.InvalidModelStateResponseFactory = context => {
+            var erros = context.ModelState
+                .Where(x => x.Value?.Errors.Count > 0)
+                .SelectMany(x => x.Value!.Errors)
+                .Select(x => x.ErrorMessage)
+                .ToList();
+
+            var resposta = new RespostaDto<object> {
+                Sucesso = false,
+                Mensagem = "Os dados enviados são inválidos. Verifique os campos e tente novamente.",
+                Dados = null
+            };
+
+            return new BadRequestObjectResult(resposta);
+        };
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options => {

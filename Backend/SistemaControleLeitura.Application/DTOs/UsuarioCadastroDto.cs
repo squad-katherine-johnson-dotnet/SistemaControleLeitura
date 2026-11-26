@@ -5,6 +5,7 @@ namespace SistemaControleLeitura.Application.DTOs {
     public class UsuarioCadastroDto {
 
         [Required(ErrorMessage = "O nome é obrigatório.")]
+        [StringLength(120, ErrorMessage = "O nome deve ter no máximo 120 caracteres.")]
         public string Nome { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "O e-mail é obrigatório.")]

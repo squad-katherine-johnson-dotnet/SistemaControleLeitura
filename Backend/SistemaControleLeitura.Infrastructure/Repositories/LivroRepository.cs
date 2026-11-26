@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using SistemaControleLeitura.Application.Interfaces;
+using SistemaControleLeitura.Domain.Interfaces;
 using SistemaControleLeitura.Domain.Entities;
 using SistemaControleLeitura.Infrastructure.Data;
 

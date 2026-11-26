@@ -1,5 +1,6 @@
 using SistemaControleLeitura.Application.DTOs;
 
+
 namespace SistemaControleLeitura.Application.Interfaces
 {
     public interface ILivroService

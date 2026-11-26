@@ -1,6 +1,6 @@
 ﻿using SistemaControleLeitura.Domain.Entities;
 
-namespace SistemaControleLeitura.Application.Interfaces {
+namespace SistemaControleLeitura.Domain.Interfaces {
     public interface IUsuarioRepository {
 
         Task CadastrarUsuarioAsync(Usuario usuario, CancellationToken cancellationToken = default);

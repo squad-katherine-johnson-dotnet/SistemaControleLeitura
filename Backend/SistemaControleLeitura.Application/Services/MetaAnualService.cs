@@ -91,19 +91,22 @@ public class MetaAnualService : IMetaAnualService
         {
             int mesAtual = DateTime.Now.Month;
             int anoAtual = DateTime.Now.Year;
-            int mesesRestantes = 1;
+            int mesesRestantes = 0;
 
-            if (ano == anoAtual)
-            {
+            if (ano < anoAtual) {
+                mesesRestantes = 0;
+            }
+            else if (ano == anoAtual) {
                 mesesRestantes = (12 - mesAtual) + 1;
             }
-            else if (ano > anoAtual)
-            {
+            else if (ano > anoAtual) {
                 mesesRestantes = 12;
             }
 
-            double mediaBruta = (double)livrosRestantes / mesesRestantes;
-            mediaMensalNecessaria = Math.Round(mediaBruta, 1);
+            if (mesesRestantes > 0) {
+                double mediaBruta = (double)livrosRestantes / mesesRestantes;
+                mediaMensalNecessaria = Math.Round(mediaBruta, 1);
+            }
         }
 
         return new ProgressoMetaAnualDto

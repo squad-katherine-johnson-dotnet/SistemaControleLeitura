@@ -1,6 +1,6 @@
 using Moq;
 using SistemaControleLeitura.Application.DTOs;
-using SistemaControleLeitura.Application.Interfaces;
+using SistemaControleLeitura.Domain.Interfaces;
 using SistemaControleLeitura.Application.Services;
 using SistemaControleLeitura.Domain.Entities;
 
