@@ -19,11 +19,6 @@ builder.Services
     .AddControllers()
     .ConfigureApiBehaviorOptions(options => {
         options.InvalidModelStateResponseFactory = context => {
-            var erros = context.ModelState
-                .Where(x => x.Value?.Errors.Count > 0)
-                .SelectMany(x => x.Value!.Errors)
-                .Select(x => x.ErrorMessage)
-                .ToList();
 
             var resposta = new RespostaDto<object> {
                 Sucesso = false,
