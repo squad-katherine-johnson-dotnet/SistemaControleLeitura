@@ -45,6 +45,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Leitura>(e =>
         {
+            e.Property(l => l.ProgressoAtual).HasDefaultValue(0);
             e.Property(l => l.Status).HasConversion<string>();   // grava "Lido" no banco, não 2
             e.HasOne<ItemEstante>()
             .WithMany()

@@ -52,6 +52,11 @@ namespace SistemaControleLeitura.Infrastructure.Migrations
                     b.Property<int>("ItemEstanteId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("ProgressoAtual")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER")
+                        .HasDefaultValue(0);
+
                     b.Property<string>("Status")
                         .IsRequired()
                         .HasColumnType("TEXT");
